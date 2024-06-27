@@ -55,7 +55,7 @@ func main() {
 }
 
 func GetCotacaoHandler(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(context.Background(), 2000*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 
 	defer cancel()
 
@@ -148,7 +148,7 @@ func createCotacao(ctx context.Context, cotacao CotacaoReponse) error {
 
 	db.AutoMigrate(&Cotacao{})
 
-	db.Create(&Cotacao{
+	db.WithContext(ctx).Create(&Cotacao{
 		Code:       cotacao.Code,
 		Codein:     cotacao.Codein,
 		Name:       cotacao.Name,
@@ -160,7 +160,7 @@ func createCotacao(ctx context.Context, cotacao CotacaoReponse) error {
 		Ask:        cotacao.Ask,
 		Timestamp:  cotacao.Timestamp,
 		CreateDate: cotacao.CreateDate,
-	}).WithContext(ctx)
+	})
 
 	return nil
 }
