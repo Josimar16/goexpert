@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewUser(t *testing.T) {
-	user, err := Create("John Doe", "johndoe@mail.com", "123456")
+	user, err := NewUser("John Doe", "johndoe@mail.com", "123456")
 
 	assert.Nil(t, err)
 	assert.NotNil(t, user)
@@ -18,7 +18,7 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestUserValidatePassword(t *testing.T) {
-	user, err := Create("John Doe", "johndoe@mail.com", "123456")
+	user, err := NewUser("John Doe", "johndoe@mail.com", "123456")
 
 	assert.Nil(t, err)
 	assert.True(t, user.ValidatePassword("123456"))
