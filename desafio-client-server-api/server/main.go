@@ -148,7 +148,7 @@ func createCotacao(ctx context.Context, cotacao CotacaoReponse) error {
 
 	db.AutoMigrate(&Cotacao{})
 
-	db.WithContext(ctx).Create(&Cotacao{
+	return db.WithContext(ctx).Create(&Cotacao{
 		Code:       cotacao.Code,
 		Codein:     cotacao.Codein,
 		Name:       cotacao.Name,
@@ -160,7 +160,5 @@ func createCotacao(ctx context.Context, cotacao CotacaoReponse) error {
 		Ask:        cotacao.Ask,
 		Timestamp:  cotacao.Timestamp,
 		CreateDate: cotacao.CreateDate,
-	})
-
-	return nil
+	}).Error
 }
