@@ -1,0 +1,274 @@
+basePath: /
+definitions:
+  dto.CreateAccessTokenDTO:
+    properties:
+      access_token:
+        type: string
+    type: object
+  dto.CreateProductDTO:
+    properties:
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  dto.CreateSessionDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.CreateUserDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  entity.Product:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  http.Error:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:3333
+info:
+  contact:
+    email: suporte@buildcode.com.br
+    name: Josimar Junior
+    url: http://www.buildcode.com.br
+  description: Product API with a JWT authentication
+  license:
+    name: BuildCode
+    url: http://www.buildcode.com.br
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: List a products
+      parameters:
+      - description: page number
+        in: query
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Product'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a product
+      parameters:
+      - description: product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProductDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Create product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Product'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Get product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update a product
+      parameters:
+      - description: product id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      security:
+      - ApiKeyAuth: []
+      summary: Update product
+      tags:
+      - products
+  /sessions:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user
+      parameters:
+      - description: user credencials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSessionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CreateAccessTokenDTO'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Authenticate user
+      tags:
+      - sessions
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a user
+      parameters:
+      - description: user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.Error'
+      summary: Create user
+      tags:
+      - users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

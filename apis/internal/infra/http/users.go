@@ -11,26 +11,37 @@ import (
 	"github.com/josimar16/goexpert/apis/internal/infra/database"
 )
 
-type UserHandler struct {
-	UserDB       database.User
-	JWT          *jwtauth.JWTAuth
-	JWTExperesIn int
+type Error struct {
+	Message string `json:"message"`
 }
 
-func NewUserHandler(
-	db database.User,
-	jwt *jwtauth.JWTAuth,
-	JWTExperesIn int,
-) *UserHandler {
+type UserHandler struct {
+	UserDB database.User
+}
+
+func NewUserHandler(db database.User) *UserHandler {
 	return &UserHandler{
-		UserDB:       db,
-		JWT:          jwt,
-		JWTExperesIn: JWTExperesIn,
+		UserDB: db,
 	}
 }
 
+// AuthenticateUser godoc
+//
+//	@Summary      Authenticate user
+//	@Description  Authenticate a user
+//	@Tags         sessions
+//	@Accept       json
+//	@Produce      json
+//	@Param        request body dto.CreateSessionDTO true "user credencials"
+//	@Success      200  {object}  dto.CreateAccessTokenDTO
+//	@Failure      404  {object}  Error
+//	@Failure      500  {object}  Error
+//	@Router       /sessions [post]
 func (userHandler *UserHandler) AuthenticateUser(w http.ResponseWriter, r *http.Request) {
 	// Get the JWT
+	jwt := r.Context().Value("jwt").(*jwtauth.JWTAuth)
+	jwtExperesIn := r.Context().Value("JWTExperesIn").(int)
+
 	var body dto.CreateSessionDTO
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -41,7 +52,9 @@ func (userHandler *UserHandler) AuthenticateUser(w http.ResponseWriter, r *http.
 
 	user, err := userHandler.UserDB.FindByEmail(body.Email)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusNotFound)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
@@ -50,22 +63,29 @@ func (userHandler *UserHandler) AuthenticateUser(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, token, _ := userHandler.JWT.Encode(map[string]interface{}{
+	_, token, _ := jwt.Encode(map[string]interface{}{
 		"sub": user.ID.String(),
-		"exp": time.Now().Add(time.Second * time.Duration(userHandler.JWTExperesIn)).Unix(),
+		"exp": time.Now().Add(time.Second * time.Duration(jwtExperesIn)).Unix(),
 	})
 
-	accessToken := struct {
-		AccessToken string `json:"access_token"`
-	}{
-		AccessToken: token,
-	}
+	accessToken := dto.CreateAccessTokenDTO{AccessToken: token}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(accessToken)
 }
 
+// CreateUser godoc
+//
+//	@Summary      Create user
+//	@Description  Create a user
+//	@Tags         users
+//	@Accept       json
+//	@Produce      json
+//	@Param        request body dto.CreateUserDTO true "user request"
+//	@Success      201
+//	@Failure      500  {object}  Error
+//	@Router       /users [post]
 func (userHandler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Create a user
 	var body dto.CreateUserDTO
@@ -79,6 +99,8 @@ func (userHandler *UserHandler) CreateUser(w http.ResponseWriter, r *http.Reques
 	user, err := entity.NewUser(body.Name, body.Email, body.Password)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 

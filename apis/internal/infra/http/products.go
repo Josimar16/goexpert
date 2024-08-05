@@ -20,8 +20,19 @@ func NewProductHandler(db database.Product) *ProductHanlder {
 	return &ProductHanlder{ProductDB: db}
 }
 
+// CreateProduct godoc
+//
+// @Summary      Create product
+// @Description  Create a product
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.CreateProductDTO true "product request"
+// @Success      201
+// @Failure      500  {object}  Error
+// @Router       /products [post]
+// @Security     ApiKeyAuth
 func (productHandler *ProductHanlder) CreateProduct(w http.ResponseWriter, r *http.Request) {
-	// Create a product
 	var body dto.CreateProductDTO
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -42,6 +53,19 @@ func (productHandler *ProductHanlder) CreateProduct(w http.ResponseWriter, r *ht
 	}
 }
 
+// GetProduct godoc
+//
+// @Summary      Get product
+// @Description  Get a product
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string true "product id"
+// @Success      200   {object}  entity.Product
+// @Failure      404   {object}  Error
+// @Failure      500   {object}  Error
+// @Router       /products/{id} [get]
+// @Security     ApiKeyAuth
 func (productHandler *ProductHanlder) GetProduct(w http.ResponseWriter, r *http.Request) {
 	// Get a product
 	id := chi.URLParam(r, "id")
@@ -53,6 +77,8 @@ func (productHandler *ProductHanlder) GetProduct(w http.ResponseWriter, r *http.
 	product, err := productHandler.ProductDB.FindByID(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
@@ -60,6 +86,20 @@ func (productHandler *ProductHanlder) GetProduct(w http.ResponseWriter, r *http.
 	json.NewEncoder(w).Encode(product)
 }
 
+// ListProducts godoc
+//
+// @Summary      List products
+// @Description  List a products
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        page  query string false "page number"
+// @Param        limit query string false "limit"
+// @Success      200   {array} entity.Product
+// @Failure      404   {object}  Error
+// @Failure      500   {object}  Error
+// @Router       /products [get]
+// @Security     ApiKeyAuth
 func (productHandler *ProductHanlder) GetProducts(w http.ResponseWriter, r *http.Request) {
 	// Get all products
 	pageQuery := r.URL.Query().Get("page")
@@ -86,6 +126,20 @@ func (productHandler *ProductHanlder) GetProducts(w http.ResponseWriter, r *http
 	json.NewEncoder(w).Encode(products)
 }
 
+// UpdateProduct godoc
+//
+// @Summary      Update product
+// @Description  Update a product
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id      path string true "product id"
+// @Param        request body entity.Product true "product request"
+// @Success      200
+// @Failure      404   {object}  Error
+// @Failure      500   {object}  Error
+// @Router       /products/{id} [put]
+// @Security     ApiKeyAuth
 func (productHandler *ProductHanlder) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	// Update a product
 	var product entity.Product
@@ -110,6 +164,8 @@ func (productHandler *ProductHanlder) UpdateProduct(w http.ResponseWriter, r *ht
 	_, err = productHandler.ProductDB.FindByID(product.ID.String())
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 
@@ -123,6 +179,19 @@ func (productHandler *ProductHanlder) UpdateProduct(w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeleteProduct godoc
+//
+// @Summary      Delete product
+// @Description  Delete a product
+// @Tags         products
+// @Accept       json
+// @Produce      json
+// @Param        id      path string true "product id"
+// @Success      200
+// @Failure      404   {object}  Error
+// @Failure      500   {object}  Error
+// @Router       /products/{id} [delete]
+// @Security     ApiKeyAuth
 func (productHandler *ProductHanlder) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	// Delete a product
 	id := chi.URLParam(r, "id")
@@ -134,6 +203,8 @@ func (productHandler *ProductHanlder) DeleteProduct(w http.ResponseWriter, r *ht
 	_, err := productHandler.ProductDB.FindByID(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
+		error := Error{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 

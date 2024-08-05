@@ -9,6 +9,7 @@ Content-Type: application/json
 ###
 
 GET http://localhost:3333/products
+Authorization: Bearer 
 
 ###
 
