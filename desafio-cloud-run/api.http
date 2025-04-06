@@ -1,0 +1,2 @@
+GET https://goexpert-weather-api-llvisyuaqq-uc.a.run.app/cep/06436230 HTTP/1.0
+Content-Type: application/json
