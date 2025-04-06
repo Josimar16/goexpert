@@ -1,0 +1,4 @@
+README.md
+Makefile
+cmd/server/.env
+docker-compose.yaml
